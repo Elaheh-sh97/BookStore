@@ -1,8 +1,13 @@
 package com.store.bookstore.dto;
 
-public class AuthResponse {
+public class AuthResponse<T> {
     private String message;
-    private ResponseUserdto responseUserdto;
+    private T data;
+
+    public AuthResponse(String message, T data) {
+        this.message = message;
+        this.data = data;
+    }
 
     public String getMessage() {
         return message;
@@ -12,11 +17,11 @@ public class AuthResponse {
         this.message = message;
     }
 
-    public ResponseUserdto getResponseUserdto() {
-        return responseUserdto;
+    public T getData() {
+        return data;
     }
 
-    public void setResponseUserdto(ResponseUserdto responseUserdto) {
-        this.responseUserdto = responseUserdto;
+    public void setData(T data) {
+        this.data = data;
     }
 }

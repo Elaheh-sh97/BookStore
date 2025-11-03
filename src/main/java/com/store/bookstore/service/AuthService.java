@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.management.relation.Role;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -23,7 +24,7 @@ public class AuthService {
     RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    public void registerUser(RequestUserdto userdto){
+    public ResponseUserdto registerUser(RequestUserdto userdto){
       if(userRepository.existsByEmail(userdto.getEmail())){
 
       }
@@ -41,9 +42,10 @@ public class AuthService {
           }
        users.setRoles(roles);
  userRepository.save(users);
-//        ResponseUserdto responseUserdto=new ResponseUserdto(
-//                users.getId(),users.getEmail()
-//        );
-
+        ResponseUserdto responseUserdto=new ResponseUserdto(
+                users.getId(),users.getEmail(),
+                users.getRoles().stream().map(r->r.getName().name()).collect(Collectors.toSet())
+        );
+return  responseUserdto;
     }
 }
