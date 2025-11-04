@@ -1,8 +1,7 @@
 package com.store.bookstore.dto;
-import com.store.bookstore.model.RoleName;
 import java.util.Set;
 
-public class RequestUserdto {
+public class SignUpRequestdto {
     private String firstname;
     private String lastname;
     private String email;

@@ -10,17 +10,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
+    private int id;
     private final String email;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(Users user){
+        this.id=user.getId();
         this.email=user.getEmail();
         this.password=user.getPassword();
         this.authorities=user.getRoles().stream().map(role->new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

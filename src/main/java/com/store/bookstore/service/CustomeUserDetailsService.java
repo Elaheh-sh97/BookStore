@@ -1,6 +1,5 @@
 package com.store.bookstore.service;
 
-import com.store.bookstore.dto.RequestUserdto;
 import com.store.bookstore.model.Users;
 import com.store.bookstore.repository.UserRepository;
 import com.store.bookstore.security.CustomUserDetails;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CustomeUserDetailsService implements UserDetailsService {
-    @Autowired
     private final UserRepository userRepository;
 
     public CustomeUserDetailsService(UserRepository userRepository) {

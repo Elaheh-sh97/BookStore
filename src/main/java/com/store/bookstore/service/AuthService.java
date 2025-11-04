@@ -1,17 +1,22 @@
 package com.store.bookstore.service;
 
-import com.store.bookstore.dto.RequestUserdto;
-import com.store.bookstore.dto.ResponseUserdto;
+import com.store.bookstore.dto.SignInRequestdto;
+import com.store.bookstore.dto.SignUpRequestdto;
+import com.store.bookstore.dto.SignUpResponsedto;
 import com.store.bookstore.model.RoleName;
 import com.store.bookstore.model.Roles;
 import com.store.bookstore.model.Users;
 import com.store.bookstore.repository.RoleRepository;
 import com.store.bookstore.repository.UserRepository;
+import com.store.bookstore.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.Role;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,7 +29,9 @@ public class AuthService {
     RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    public ResponseUserdto registerUser(RequestUserdto userdto){
+    @Autowired
+    private AuthenticationManager  authenticationManager;
+    public SignUpResponsedto registerUser(SignUpRequestdto userdto){
       if(userRepository.existsByEmail(userdto.getEmail())){
 
       }
@@ -42,10 +49,23 @@ public class AuthService {
           }
        users.setRoles(roles);
  userRepository.save(users);
-        ResponseUserdto responseUserdto=new ResponseUserdto(
+        SignUpResponsedto signUpResponsedto =new SignUpResponsedto(
                 users.getId(),users.getEmail(),
                 users.getRoles().stream().map(r->r.getName().name()).collect(Collectors.toSet())
         );
-return  responseUserdto;
+return signUpResponsedto;
     }
+
+    public SignUpResponsedto loginUser(SignInRequestdto userdto){
+        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(userdto.getEmail(),userdto.getPassword());
+        Authentication authentication=authenticationManager.authenticate(authToken);
+        CustomUserDetails userDetails=(CustomUserDetails) authentication.getPrincipal();
+        SignUpResponsedto signUpResponsedto=new SignUpResponsedto(userDetails.getId(),
+                userDetails.getEmail(),userDetails.getAuthorities().stream()
+                .map(r->r.getAuthority()).collect(Collectors.toSet()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return signUpResponsedto;
+    }
+
 }

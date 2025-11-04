@@ -2,12 +2,12 @@ package com.store.bookstore.dto;
 
 import java.util.Set;
 
-public class ResponseUserdto {
+public class SignUpResponsedto {
     private int id;
     private String email;
 
     private Set<String> roles;
-    public ResponseUserdto(int id, String email, Set<String> roles) {
+    public SignUpResponsedto(int id, String email, Set<String> roles) {
         this.id = id;
         this.email = email;
         this.roles = roles;
