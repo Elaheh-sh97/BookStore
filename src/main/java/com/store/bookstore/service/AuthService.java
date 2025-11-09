@@ -1,5 +1,7 @@
 package com.store.bookstore.service;
 
+import com.store.bookstore.config.JwtService;
+import com.store.bookstore.dto.AuthResponse;
 import com.store.bookstore.dto.SignInRequestdto;
 import com.store.bookstore.dto.SignUpRequestdto;
 import com.store.bookstore.dto.SignUpResponsedto;
@@ -30,42 +32,47 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private AuthenticationManager  authenticationManager;
-    public SignUpResponsedto registerUser(SignUpRequestdto userdto){
-      if(userRepository.existsByEmail(userdto.getEmail())){
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtService jwtService;
 
-      }
-          Users users=new Users();
-          users.setFirstname(userdto.getFirstname());
-          users.setLastname(userdto.getLastname());
-          String hashpassword=passwordEncoder.encode(userdto.getPassword());
-          users.setPassword(hashpassword);
-          users.setEmail(userdto.getEmail());
-          Set<Roles> roles=new HashSet<>();
-          for(String roleName:userdto.getRoles()){
-              RoleName rn = RoleName.valueOf(roleName);
-              Roles role= roleRepository.findByname(rn);
-              roles.add(role);
-          }
-       users.setRoles(roles);
- userRepository.save(users);
-        SignUpResponsedto signUpResponsedto =new SignUpResponsedto(
-                users.getId(),users.getEmail(),
-                users.getRoles().stream().map(r->r.getName().name()).collect(Collectors.toSet())
+    public SignUpResponsedto registerUser(SignUpRequestdto userdto) {
+        if (userRepository.existsByEmail(userdto.getEmail())) {
+
+        }
+        Users users = new Users();
+        users.setFirstname(userdto.getFirstname());
+        users.setLastname(userdto.getLastname());
+        String hashpassword = passwordEncoder.encode(userdto.getPassword());
+        users.setPassword(hashpassword);
+        users.setEmail(userdto.getEmail());
+        Set<Roles> roles = new HashSet<>();
+        for (String roleName : userdto.getRoles()) {
+            RoleName rn = RoleName.valueOf(roleName);
+            Roles role = roleRepository.findByname(rn);
+            roles.add(role);
+        }
+        users.setRoles(roles);
+        userRepository.save(users);
+        SignUpResponsedto signUpResponsedto = new SignUpResponsedto(
+                users.getId(), users.getEmail(),
+                users.getRoles().stream().map(r -> r.getName().name()).collect(Collectors.toSet())
         );
-return signUpResponsedto;
-    }
-
-    public SignUpResponsedto loginUser(SignInRequestdto userdto){
-        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(userdto.getEmail(),userdto.getPassword());
-        Authentication authentication=authenticationManager.authenticate(authToken);
-        CustomUserDetails userDetails=(CustomUserDetails) authentication.getPrincipal();
-        SignUpResponsedto signUpResponsedto=new SignUpResponsedto(userDetails.getId(),
-                userDetails.getEmail(),userDetails.getAuthorities().stream()
-                .map(r->r.getAuthority()).collect(Collectors.toSet()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         return signUpResponsedto;
     }
+
+    public AuthResponse loginUser(SignInRequestdto userdto) {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userdto.getEmail(), userdto.getPassword());
+        Authentication authentication = authenticationManager.authenticate(authToken);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        SignUpResponsedto signUpResponsedto = new SignUpResponsedto(userDetails.getId(),
+                userDetails.getEmail(), userDetails.getAuthorities().stream()
+                .map(r -> r.getAuthority()).collect(Collectors.toSet()));
+        String token = jwtService.generateToken(userDetails);
+        AuthResponse authResponse = new AuthResponse("User Login Successfully", token, signUpResponsedto);
+
+        return authResponse;
+    }
+
 
 }
