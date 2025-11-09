@@ -1,0 +1,15 @@
+ INSERT INTO products (name,price,description,stock) VALUES
+    ('book A','2300000','A fantasy book','5'),
+    ('book B','1300000','A fantasy book','6'),
+    ('book C','300000','A fantasy book','5'),
+    ('book D','5000000','A fantasy book','4'),
+    ('book E','4000000','A fantasy book','15'),
+    ('book F','1200000','A fantasy book','15'),
+    ('book G','2300000','A fantasy book','25'),
+    ('book H','4200000','A fantasy book','35'),
+    ('book I','2300000','A fantasy book','10'),
+    ('book J','5000000','A fantasy book','10'),
+    ('book K','2300000','A fantasy book','10'),
+    ('book L','3000000','A fantasy book','15'),
+    ('book M','2000000','A fantasy book','8'),
+    ('book N','2000000','A fantasy book','9');

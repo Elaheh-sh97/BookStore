@@ -16,7 +16,7 @@ public class Users {
     @Column(unique = true)
     private String email;
     private String password;
-    @ManyToMany(targetEntity = Roles.class)
+    @ManyToMany(targetEntity = Roles.class,fetch = FetchType.EAGER)
     private Set<Roles> roles;
 
     public Set<Roles> getRoles() {
