@@ -20,14 +20,11 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int user_id;
+    private int userId;
     private String status;
-    private List<CartItem> cartItemList;
     private double total_price;
-
-
-    public Cart(int user_id, String status) {
-        this.user_id = user_id;
+    public Cart(int userId, String status) {
+        this.userId = userId;
         this.status = status;
     }
 }
