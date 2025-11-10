@@ -1,4 +1,4 @@
- INSERT INTO products (name,price,description,stock) VALUES
+ INSERT INTO product (name,price,description,stock) VALUES
     ('book A','2300000','A fantasy book','5'),
     ('book B','1300000','A fantasy book','6'),
     ('book C','300000','A fantasy book','5'),

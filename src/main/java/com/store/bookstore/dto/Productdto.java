@@ -1,23 +1,17 @@
-package com.store.bookstore.model;
+package com.store.bookstore.dto;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name="products")
-public class Products {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Productdto {
     private int id;
     private String name;
     private double price;
     private String description;
     private int stock;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
+    public Productdto(int id, String name, double price, int stock, String description) {
+        this.stock = stock;
+        this.description = description;
+        this.price = price;
+        this.name = name;
         this.id = id;
     }
 
@@ -52,4 +46,14 @@ public class Products {
     public void setStock(int stock) {
         this.stock = stock;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
 }

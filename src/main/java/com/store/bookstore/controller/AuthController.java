@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/bookstore")
-public class StoreController {
+public class AuthController {
     @Autowired
     AuthService authService;
 
