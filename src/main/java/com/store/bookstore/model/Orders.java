@@ -18,11 +18,11 @@ public class Orders {
     private int id;
     @ManyToOne
     @JoinColumn(name = "users_id")
-    private Users users ;
+    private Users users;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
     private double totalPrice;
-    @OneToMany(mappedBy = "orders")
+    @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL)
     private List<OrderItem> orderItemList;
 
 
