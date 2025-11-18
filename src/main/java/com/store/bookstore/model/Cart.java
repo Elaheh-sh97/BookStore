@@ -1,9 +1,6 @@
 package com.store.bookstore.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +19,10 @@ public class Cart {
     private int id;
     private int userId;
     private String status;
-    private double total_price;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    private List<CartItem> cartItems;
+    private double cartTotalPrice;
+    private int cartTotalQuantity;
     public Cart(int userId, String status) {
         this.userId = userId;
         this.status = status;

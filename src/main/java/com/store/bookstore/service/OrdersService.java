@@ -45,6 +45,6 @@ public class OrdersService {
         newOrder.setTotalPrice(allTotalPrice);
         newOrder.setOrderStatus(OrderStatus.CREATED);
         orderRepository.save(newOrder);
-        return "hey success";
+        return "order created successfully";
     }
 }

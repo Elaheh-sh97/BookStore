@@ -2,8 +2,6 @@ package com.store.bookstore.controller;
 
 
 import com.store.bookstore.dto.OrderRequestdto;
-import com.store.bookstore.repository.OrderItemRepository;
-import com.store.bookstore.repository.OrderRepository;
 import com.store.bookstore.service.OrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +17,7 @@ public class OrdersController {
 
     @PostMapping("/orders")
     public String createOrderFromCart(@RequestBody OrderRequestdto orderRequestdto) {
-      ordersService.createOrderFromCart(orderRequestdto);
-      return "success";
+        return ordersService.createOrderFromCart(orderRequestdto);
+
     }
 }

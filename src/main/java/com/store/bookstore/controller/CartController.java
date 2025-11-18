@@ -1,5 +1,6 @@
 package com.store.bookstore.controller;
 
+import com.store.bookstore.dto.AddToCartResponsedto;
 import com.store.bookstore.dto.AddToCartdto;
 import com.store.bookstore.dto.AuthResponse;
 import com.store.bookstore.service.CartService;
@@ -14,12 +15,16 @@ public class CartController {
 private CartService cartService;
 
 @PostMapping("/item")
-public ResponseEntity<String> addToCart(@RequestBody AddToCartdto addToCartdto){
-    String body=  cartService.addToCart(addToCartdto);
-    return ResponseEntity.ok().body(body);
+public ResponseEntity<AddToCartResponsedto> addToCart(@RequestBody AddToCartdto addToCartdto){
+    AddToCartResponsedto reponse=  cartService.addToCart(addToCartdto);
+    return ResponseEntity.ok().body(reponse);
 }
 
-
+@PostMapping("/item/{id}")
+public ResponseEntity<AddToCartResponsedto> deleteCartItem(@PathVariable int id){
+ AddToCartResponsedto response= cartService.deleteCartItem(id);
+ return ResponseEntity.ok().body(response);
+}
 
 
 }

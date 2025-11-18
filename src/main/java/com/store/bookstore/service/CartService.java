@@ -1,6 +1,8 @@
 package com.store.bookstore.service;
 
+import com.store.bookstore.dto.AddToCartResponsedto;
 import com.store.bookstore.dto.AddToCartdto;
+import com.store.bookstore.dto.CartItemResponsedto;
 import com.store.bookstore.model.Cart;
 import com.store.bookstore.model.CartItem;
 import com.store.bookstore.model.Product;
@@ -13,8 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class CartService {
@@ -27,21 +28,60 @@ public class CartService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    public String addToCart(AddToCartdto addToCartdto) {
+    public AddToCartResponsedto addToCart(AddToCartdto addToCartdto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Users user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email + " not found"));
         Product product = productsRepository.findById(addToCartdto.getProduct_id()).orElseThrow(() -> new RuntimeException("Product not found"));
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> cartRepository.save(new Cart(user.getId(), "Active")));
         CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product)
-                .orElseGet(() -> new CartItem(product, cart, 0, 0));
+                .orElseGet(() -> new CartItem(product, cart, 0, 0, 0));
         int productQuantity = addToCartdto.getQuantity();
         double totalPrice = product.getPrice() * productQuantity;
         cartItem.setQuantity(productQuantity);
-        cartItem.setPrice(totalPrice);
-
+        cartItem.setPrice(product.getPrice());
+        cartItem.setTotalPrice(totalPrice);
         cartItemRepository.save(cartItem);
-        return "Success";
+        List<CartItem> cartItemsList = cart.getCartItems();
+        cart.setCartTotalPrice(0);
+        cart.setCartTotalQuantity(0);
+        for (CartItem cartItem1 : cartItemsList) {
+            cart.setCartTotalPrice(cart.getCartTotalPrice() + cartItem1.getTotalPrice());
+            cart.setCartTotalQuantity(cart.getCartTotalQuantity() + cartItem1.getQuantity());
+        }
+        cartRepository.save(cart);
+        CartItemResponsedto cartItemResponsedto = new CartItemResponsedto(cartItem.getId(), cartItem.getProduct().getId(), cartItem.getProduct().getName(), cartItem.getPrice(), cartItem.getQuantity(), cartItem.getTotalPrice());
+        AddToCartResponsedto addToCartResponsedto = new AddToCartResponsedto("Product added to Cart successfully", cartItemResponsedto, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
 
+        return addToCartResponsedto;
+
+
+    }
+
+    public AddToCartResponsedto deleteCartItem(int id) {
+        AddToCartResponsedto addToCartResponsedto;
+        CartItem cartItem = cartItemRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        int cartId = cartItem.getCart().getId();
+        cartItemRepository.deleteById(id);
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found"));
+        List<CartItem> cartItemList = cartItemRepository.findByCartId(cartId);
+        if(cartItemList.isEmpty()){
+            cartRepository.deleteById(cartId);
+             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, 0, 0);
+
+        }else{
+            cart.setCartTotalPrice(0);
+            cart.setCartTotalQuantity(0);
+            for (CartItem cartItem1 : cartItemList) {
+                cart.setCartTotalPrice(cart.getCartTotalPrice() + cartItem1.getTotalPrice());
+                cart.setCartTotalQuantity(cart.getCartTotalQuantity() + cartItem1.getQuantity());
+            }
+            cartRepository.save(cart);
+             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
+
+        }
+
+
+        return addToCartResponsedto;
     }
 }
