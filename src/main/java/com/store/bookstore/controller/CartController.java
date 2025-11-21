@@ -2,7 +2,7 @@ package com.store.bookstore.controller;
 
 import com.store.bookstore.dto.AddToCartResponsedto;
 import com.store.bookstore.dto.AddToCartdto;
-import com.store.bookstore.dto.AuthResponse;
+import com.store.bookstore.dto.UpdateCartItemdto;
 import com.store.bookstore.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +26,9 @@ public ResponseEntity<AddToCartResponsedto> deleteCartItem(@PathVariable int id)
  return ResponseEntity.ok().body(response);
 }
 
-
+@PutMapping("/item/update")
+public ResponseEntity<AddToCartResponsedto> updateCartItem(@RequestBody UpdateCartItemdto updateCartItemdto){
+    AddToCartResponsedto response=cartService.updateCartItem(updateCartItemdto);
+    return ResponseEntity.ok().body(response);
+}
 }

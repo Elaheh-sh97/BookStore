@@ -3,6 +3,7 @@ package com.store.bookstore.service;
 import com.store.bookstore.dto.AddToCartResponsedto;
 import com.store.bookstore.dto.AddToCartdto;
 import com.store.bookstore.dto.CartItemResponsedto;
+import com.store.bookstore.dto.UpdateCartItemdto;
 import com.store.bookstore.model.Cart;
 import com.store.bookstore.model.CartItem;
 import com.store.bookstore.model.Product;
@@ -83,5 +84,27 @@ public class CartService {
 
 
         return addToCartResponsedto;
+    }
+
+    public AddToCartResponsedto updateCartItem(UpdateCartItemdto updateCartItemdto) {
+        CartItem cartitem=cartItemRepository.findById(updateCartItemdto.getCartItemId()).orElseThrow(()->new RuntimeException("Cart item not found"));
+        cartitem.setQuantity(updateCartItemdto.getQuantity());
+        cartitem.setTotalPrice(cartitem.getQuantity()*cartitem.getProduct().getPrice());
+        cartItemRepository.save(cartitem);
+        Cart cart=cartitem.getCart();
+        List<CartItem> cartItemList=cart.getCartItems();
+        cart.setCartTotalQuantity(0);
+        cart.setCartTotalPrice(0);
+        int totalQuntity=0;
+        int totalPrice=0;
+        for(CartItem cartItem1:cartItemList){
+            totalQuntity += cartItem1.getQuantity();
+            totalPrice+=cartItem1.getTotalPrice();
+        }
+        cart.setCartTotalQuantity(totalQuntity);
+        cart.setCartTotalPrice(totalPrice);
+        cartRepository.save(cart);
+        AddToCartResponsedto addToCartResponsedto=new AddToCartResponsedto("CartItem Updated Successfully",null,cart.getCartTotalPrice(), cart.getCartTotalQuantity());
+    return addToCartResponsedto;
     }
 }
