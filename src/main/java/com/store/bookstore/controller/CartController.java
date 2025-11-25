@@ -26,7 +26,7 @@ public ResponseEntity<AddToCartResponsedto> deleteCartItem(@PathVariable int id)
  return ResponseEntity.ok().body(response);
 }
 
-@PutMapping("/item/update")
+@PatchMapping("/item/update")
 public ResponseEntity<AddToCartResponsedto> updateCartItem(@RequestBody UpdateCartItemdto updateCartItemdto){
     AddToCartResponsedto response=cartService.updateCartItem(updateCartItemdto);
     return ResponseEntity.ok().body(response);

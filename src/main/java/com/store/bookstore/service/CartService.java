@@ -13,21 +13,35 @@ import com.store.bookstore.repository.CartRepository;
 import com.store.bookstore.repository.ProductsRepository;
 import com.store.bookstore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 @Service
 public class CartService {
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ProductsRepository productsRepository;
-    @Autowired
-    private CartItemRepository cartItemRepository;
+
+    private final CartRepository cartRepository;
+    private final UserRepository userRepository;
+    private final ProductsRepository productsRepository;
+    private final CartItemRepository cartItemRepository;
+    private final RedisTemplate redisTemplate;
+    private final HashOperations<String, String, Object> hashOps;
+    public CartService(CartRepository cartRepository, UserRepository userRepository, ProductsRepository productsRepository, CartItemRepository cartItemRepository, RedisTemplate redisTemplate, HashOperations<String, String, Object> hashOps) {
+        this.cartRepository = cartRepository;
+        this.userRepository = userRepository;
+        this.productsRepository = productsRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.redisTemplate = redisTemplate;
+        this.hashOps = hashOps;
+    }
 
     public AddToCartResponsedto addToCart(AddToCartdto addToCartdto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -46,11 +60,18 @@ public class CartService {
         List<CartItem> cartItemsList = cart.getCartItems();
         cart.setCartTotalPrice(0);
         cart.setCartTotalQuantity(0);
+        int carttotalQuntity = 0;
+        int carttotalPrice = 0;
         for (CartItem cartItem1 : cartItemsList) {
-            cart.setCartTotalPrice(cart.getCartTotalPrice() + cartItem1.getTotalPrice());
-            cart.setCartTotalQuantity(cart.getCartTotalQuantity() + cartItem1.getQuantity());
+            carttotalQuntity += cartItem1.getQuantity();
+            carttotalPrice += cartItem1.getTotalPrice();
         }
+        cart.setCartTotalPrice(carttotalPrice);
+        cart.setCartTotalQuantity(carttotalQuntity);
         cartRepository.save(cart);
+        String userId=String.valueOf(user.getId());
+        hashOps.put("Carts",userId,cart);
+
         CartItemResponsedto cartItemResponsedto = new CartItemResponsedto(cartItem.getId(), cartItem.getProduct().getId(), cartItem.getProduct().getName(), cartItem.getPrice(), cartItem.getQuantity(), cartItem.getTotalPrice());
         AddToCartResponsedto addToCartResponsedto = new AddToCartResponsedto("Product added to Cart successfully", cartItemResponsedto, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
 
@@ -59,6 +80,7 @@ public class CartService {
 
     }
 
+    @CacheEvict(value = "Carts", key = "#CartID")
     public AddToCartResponsedto deleteCartItem(int id) {
         AddToCartResponsedto addToCartResponsedto;
         CartItem cartItem = cartItemRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
@@ -66,11 +88,11 @@ public class CartService {
         cartItemRepository.deleteById(id);
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found"));
         List<CartItem> cartItemList = cartItemRepository.findByCartId(cartId);
-        if(cartItemList.isEmpty()){
+        if (cartItemList.isEmpty()) {
             cartRepository.deleteById(cartId);
-             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, 0, 0);
+            addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, 0, 0);
 
-        }else{
+        } else {
             cart.setCartTotalPrice(0);
             cart.setCartTotalQuantity(0);
             for (CartItem cartItem1 : cartItemList) {
@@ -78,7 +100,7 @@ public class CartService {
                 cart.setCartTotalQuantity(cart.getCartTotalQuantity() + cartItem1.getQuantity());
             }
             cartRepository.save(cart);
-             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
+            addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
 
         }
 
@@ -87,24 +109,24 @@ public class CartService {
     }
 
     public AddToCartResponsedto updateCartItem(UpdateCartItemdto updateCartItemdto) {
-        CartItem cartitem=cartItemRepository.findById(updateCartItemdto.getCartItemId()).orElseThrow(()->new RuntimeException("Cart item not found"));
+        CartItem cartitem = cartItemRepository.findById(updateCartItemdto.getCartItemId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart item not found"));
         cartitem.setQuantity(updateCartItemdto.getQuantity());
-        cartitem.setTotalPrice(cartitem.getQuantity()*cartitem.getProduct().getPrice());
+        cartitem.setTotalPrice(cartitem.getQuantity() * cartitem.getProduct().getPrice());
         cartItemRepository.save(cartitem);
-        Cart cart=cartitem.getCart();
-        List<CartItem> cartItemList=cart.getCartItems();
+        Cart cart = cartitem.getCart();
+        List<CartItem> cartItemList = cart.getCartItems();
         cart.setCartTotalQuantity(0);
         cart.setCartTotalPrice(0);
-        int totalQuntity=0;
-        int totalPrice=0;
-        for(CartItem cartItem1:cartItemList){
+        int totalQuntity = 0;
+        int totalPrice = 0;
+        for (CartItem cartItem1 : cartItemList) {
             totalQuntity += cartItem1.getQuantity();
-            totalPrice+=cartItem1.getTotalPrice();
+            totalPrice += cartItem1.getTotalPrice();
         }
         cart.setCartTotalQuantity(totalQuntity);
         cart.setCartTotalPrice(totalPrice);
         cartRepository.save(cart);
-        AddToCartResponsedto addToCartResponsedto=new AddToCartResponsedto("CartItem Updated Successfully",null,cart.getCartTotalPrice(), cart.getCartTotalQuantity());
-    return addToCartResponsedto;
+        AddToCartResponsedto addToCartResponsedto = new AddToCartResponsedto("CartItem Updated Successfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
+        return addToCartResponsedto;
     }
 }
