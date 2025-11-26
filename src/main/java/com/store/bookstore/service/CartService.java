@@ -12,9 +12,6 @@ import com.store.bookstore.repository.CartItemRepository;
 import com.store.bookstore.repository.CartRepository;
 import com.store.bookstore.repository.ProductsRepository;
 import com.store.bookstore.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -23,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.xml.validation.Validator;
 import java.util.List;
 
 @Service
@@ -32,15 +30,15 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductsRepository productsRepository;
     private final CartItemRepository cartItemRepository;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate <String,Object> redisTemplate;
     private final HashOperations<String, String, Object> hashOps;
-    public CartService(CartRepository cartRepository, UserRepository userRepository, ProductsRepository productsRepository, CartItemRepository cartItemRepository, RedisTemplate redisTemplate, HashOperations<String, String, Object> hashOps) {
+    public CartService(CartRepository cartRepository, UserRepository userRepository, ProductsRepository productsRepository, CartItemRepository cartItemRepository, RedisTemplate<String,Object>redisTemplate) {
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.productsRepository = productsRepository;
         this.cartItemRepository = cartItemRepository;
         this.redisTemplate = redisTemplate;
-        this.hashOps = hashOps;
+        this.hashOps = redisTemplate.opsForHash();
     }
 
     public AddToCartResponsedto addToCart(AddToCartdto addToCartdto) {
@@ -80,7 +78,7 @@ public class CartService {
 
     }
 
-    @CacheEvict(value = "Carts", key = "#CartID")
+
     public AddToCartResponsedto deleteCartItem(int id) {
         AddToCartResponsedto addToCartResponsedto;
         CartItem cartItem = cartItemRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
@@ -90,6 +88,7 @@ public class CartService {
         List<CartItem> cartItemList = cartItemRepository.findByCartId(cartId);
         if (cartItemList.isEmpty()) {
             cartRepository.deleteById(cartId);
+            hashOps.delete("Carts", String.valueOf(cart.getUserId()));
             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, 0, 0);
 
         } else {
@@ -100,6 +99,8 @@ public class CartService {
                 cart.setCartTotalQuantity(cart.getCartTotalQuantity() + cartItem1.getQuantity());
             }
             cartRepository.save(cart);
+            String userId=String.valueOf(cart.getUserId());
+            hashOps.put("Carts",userId,cart);
             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
 
         }
@@ -126,6 +127,8 @@ public class CartService {
         cart.setCartTotalQuantity(totalQuntity);
         cart.setCartTotalPrice(totalPrice);
         cartRepository.save(cart);
+        String userId=String.valueOf(cart.getUserId());
+        hashOps.put("Carts",userId,cart);
         AddToCartResponsedto addToCartResponsedto = new AddToCartResponsedto("CartItem Updated Successfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
         return addToCartResponsedto;
     }
