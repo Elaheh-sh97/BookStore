@@ -1,9 +1,11 @@
 package com.store.bookstore.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name="product")
+
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,6 +14,18 @@ public class Product {
     private double price;
     private String description;
     private int stock;
+
+    public Product(String name, double price, String description, int stock) {
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.stock = stock;
+    }
+
+    public Product() {
+
+    }
+
 
     public int getId() {
         return id;

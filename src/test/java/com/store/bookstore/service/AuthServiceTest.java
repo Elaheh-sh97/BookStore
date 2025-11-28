@@ -12,29 +12,29 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuthServiceTest {
-    private AuthService authUnderTest;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    private AutoCloseable closeable;
+//    private AuthService authUnderTest;
+//    @Mock
+//    private UserRepository userRepository;
+//    @Mock
+//    private PasswordEncoder passwordEncoder;
+//    private AutoCloseable closeable;
     @BeforeEach
     void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
-//      authUnderTest=new AuthService(userRepository);
+System.out.println("Before anything else");
     }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        closeable.close();
-    }
+//
+//    @AfterEach
+//    void tearDown() throws Exception {
+//        closeable.close();
+//    }
 
     @Test
-    void registerUser() {
+    public void registerUser() {
+        System.out.println("registerUser");
     }
 
-    @Disabled
-    @Test
-    void loginUser() {
-    }
+//    @Disabled
+//    @Test
+//    void loginUser() {
+//    }
 }

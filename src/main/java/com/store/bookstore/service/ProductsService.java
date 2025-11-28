@@ -14,6 +14,10 @@ public class ProductsService {
     @Autowired
     private ProductsRepository productsRepository;
 
+    public ProductsService(ProductsRepository productsRepository) {
+        this.productsRepository = productsRepository;
+    }
+
     public List<Productdto> getAllProducts(){
       return  productsRepository.findAll().stream()
               .map(p->new Productdto(p.getId(),p.getName(),p.getPrice(),p.getStock(),p.getDescription()))
