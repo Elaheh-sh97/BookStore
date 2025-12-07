@@ -16,25 +16,15 @@ public class ProductsController {
 
     private ProductsService productsService;
 
-    private RedisTemplate<String, Object> redisTemplate;
-    private HashOperations<String, String, Object> hashOperations;
-    public ProductsController(ProductsService productsService, RedisTemplate<String, Object> redisTemplate, HashOperations<String, String, Object> hashOperations) {
+
+    public ProductsController(ProductsService productsService) {
         this.productsService = productsService;
-        this.redisTemplate = redisTemplate;
-        this.hashOperations = hashOperations;
+
     }
 
     @GetMapping("/books")
     public ResponseEntity<List<Productdto>> getAllproducts(){
-        Object chechedProduct=redisTemplate.opsForHash().hasKey("products","allProducts");
-        List<Productdto> products;
-        if(chechedProduct!=null){
-     products= (List<Productdto>)redisTemplate.opsForHash().get("products","allProducts");
-        }else{
-     products = productsService.getAllProducts();
-     redisTemplate.opsForHash().put("products","allProducts",products);
-
-        }
+        List<Productdto> products= productsService.getAllProducts();
         return ResponseEntity.ok().body(products);
     }
 

@@ -1,5 +1,10 @@
 package com.store.bookstore.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class Productdto {
     private int id;
     private String name;

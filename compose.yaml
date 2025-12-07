@@ -1,27 +1,6 @@
 services:
-#  db:
-#    image: postgres:15
-#    container_name: bookstore-db
-#    environment:
-#      POSTGRES_DB: bookstore
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: sleepyBird
-#      ports:
-#        - "5432:5432"
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
 
-#  app:
-#    build: .
-#    container_name: bookstore-app
-#    depends_on:
-#      - db
-#      - redis
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/mydb
-#      SPRING_DATASOURCE_USERNAME: postgres
-#      SPRING_DATASOURCE_PASSWORD:
