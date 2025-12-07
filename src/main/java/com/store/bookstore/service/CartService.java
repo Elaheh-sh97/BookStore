@@ -31,14 +31,14 @@ public class CartService {
     private final ProductsRepository productsRepository;
     private final CartItemRepository cartItemRepository;
     private final RedisTemplate <String,Object> redisTemplate;
-    private final HashOperations<String, String, Object> hashOps;
+//    private final HashOperations<String, String, Object> hashOps;
     public CartService(CartRepository cartRepository, UserRepository userRepository, ProductsRepository productsRepository, CartItemRepository cartItemRepository, RedisTemplate<String,Object>redisTemplate) {
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.productsRepository = productsRepository;
         this.cartItemRepository = cartItemRepository;
         this.redisTemplate = redisTemplate;
-        this.hashOps = redisTemplate.opsForHash();
+
     }
 
     public AddToCartResponsedto addToCart(AddToCartdto addToCartdto) {
@@ -68,7 +68,7 @@ public class CartService {
         cart.setCartTotalQuantity(carttotalQuntity);
         cartRepository.save(cart);
         String userId=String.valueOf(user.getId());
-        hashOps.put("Carts",userId,cart);
+        redisTemplate.opsForHash().put("Carts",userId,cart);
 
         CartItemResponsedto cartItemResponsedto = new CartItemResponsedto(cartItem.getId(), cartItem.getProduct().getId(), cartItem.getProduct().getName(), cartItem.getPrice(), cartItem.getQuantity(), cartItem.getTotalPrice());
         AddToCartResponsedto addToCartResponsedto = new AddToCartResponsedto("Product added to Cart successfully", cartItemResponsedto, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
@@ -88,7 +88,7 @@ public class CartService {
         List<CartItem> cartItemList = cartItemRepository.findByCartId(cartId);
         if (cartItemList.isEmpty()) {
             cartRepository.deleteById(cartId);
-            hashOps.delete("Carts", String.valueOf(cart.getUserId()));
+            redisTemplate.opsForHash().delete("Carts", String.valueOf(cart.getUserId()));
             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, 0, 0);
 
         } else {
@@ -100,7 +100,7 @@ public class CartService {
             }
             cartRepository.save(cart);
             String userId=String.valueOf(cart.getUserId());
-            hashOps.put("Carts",userId,cart);
+            redisTemplate.opsForHash().put("Carts",userId,cart);
             addToCartResponsedto = new AddToCartResponsedto("cart item removed sucessfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
 
         }
@@ -128,7 +128,7 @@ public class CartService {
         cart.setCartTotalPrice(totalPrice);
         cartRepository.save(cart);
         String userId=String.valueOf(cart.getUserId());
-        hashOps.put("Carts",userId,cart);
+        redisTemplate.opsForHash().put("Carts",userId,cart);
         AddToCartResponsedto addToCartResponsedto = new AddToCartResponsedto("CartItem Updated Successfully", null, cart.getCartTotalPrice(), cart.getCartTotalQuantity());
         return addToCartResponsedto;
     }
