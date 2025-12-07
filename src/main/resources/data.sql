@@ -12,5 +12,4 @@
     ('book K','2300000','A fantasy book','10'),
     ('book L','3000000','A fantasy book','15'),
     ('book M','2000000','A fantasy book','8'),
-    ('book N','2000000','A fantasy book','9')
- ON CONFLICT (name) DO NOTHING;
+    ('book N','2000000','A fantasy book','9');
