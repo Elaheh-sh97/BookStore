@@ -1,45 +1,45 @@
-E-Commerce Backend (Spring Boot)
+# E-Commerce Backend (Spring Boot)
 
 A complete backend for an online store built with Spring Boot.
 Includes authentication, authorization, JWT tokens, product management, cart, orders, PostgreSQL, Redis caching, and JUnit tests.
 
-Features
+# Features
 
-Authentication & Authorization
+## Authentication & Authorization
 
-User registration & login
+- User registration & login
 
-Role-based access control (RBAC)
+- Role-based access control (RBAC)
 
-JWT (Access & Refresh Tokens)
+- JWT (Access & Refresh Tokens)
 
-Product Management
+## Product Management
 
-CRUD operations for products
+- CRUD operations for products
 
-Shopping Cart
+## Shopping Cart
 
-Add / remove items
+- Add / remove items
 
-Update quantities
+- Update quantities
 
-Retrieve user's cart
+- Retrieve user's cart
 
-Orders
+## Orders
 
-Place new order
+- Place new order
 
-Order history
+- Order history
 
-Order details
-Database
+- Order details
+## Database
 
-PostgreSQL with JPA & Hibernate
+- PostgreSQL with JPA & Hibernate
 
-Caching
+## Caching
 
-Redis integration for performance
+- Redis integration for performance
 
-Testing
+## Testing
 
-JUnit & Mockito
+- JUnit & Mockito
